@@ -10,7 +10,7 @@ class Permiso extends Model
     use HasFactory;
 
     protected $table = 'permisos';
-    protected $fillable = ['id_vehiculo', 'id_conductor', 'codigo_qr', 'fecha_emision', 'fecha_expiracion', 'estado'];
+    protected $fillable = ['id_vehiculo', 'id_conductor', 'codigo_qr', 'fecha_emision', 'fecha_expiracion', 'estado', "qr"];
 
     // Relación con la tabla Vehiculo
     public function vehiculo()

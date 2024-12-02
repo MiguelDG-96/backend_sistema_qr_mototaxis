@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Conductor;
+use App\Models\Asociacion;
 use Illuminate\Http\Request;
 
 class ConductorController extends Controller
@@ -10,69 +11,83 @@ class ConductorController extends Controller
     // Método para listar todos los conductores
     public function index()
     {
-        $conductores = Conductor::with('asociacion')->get();
-        return response()->json($conductores);
+        // Obtiene todos los conductores activos junto con su asociación
+        $conductores = Conductor::with('asociacion')->where('estado', 1)->get();
+        $asociaciones = Asociacion::where('estado', 1)->get();
+
+        // Retorna la vista con los datos necesarios
+        return view('conductores', compact('conductores', 'asociaciones'));
     }
 
     // Método para registrar un nuevo conductor
     public function store(Request $request)
     {
+        // Validar los datos del formulario
         $request->validate([
             'nombre' => 'required|string|max:100',
             'dni' => 'required|string|size:8|unique:conductores,dni',
             'direccion' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:20',
             'id_asociacion' => 'required|exists:asociaciones,id',
-            'estado' => 'required|boolean',
         ]);
 
-        $conductor = Conductor::create($request->all());
+        // Crear el nuevo conductor
+        Conductor::create([
+            'nombre' => $request->nombre,
+            'dni' => $request->dni,
+            'direccion' => $request->direccion,
+            'telefono' => $request->telefono,
+            'id_asociacion' => $request->id_asociacion,
+            'estado' => 1, // Estado por defecto al registrar un nuevo conductor
+        ]);
 
-        return response()->json(['conductor' => $conductor], 201);
-    }
-
-    public function show($id)
-    {
-        $conductor = Conductor::with('asociacion')->find($id);
-
-        if (!$conductor) {
-            return response()->json(['message' => 'Conductor no encontrado'], 404);
-        }
-
-        return response()->json($conductor);
+        // Redirigir con mensaje de éxito
+        return redirect()->route('conductores.index')->with('success', 'Conductor registrado exitosamente.');
     }
 
     // Método para actualizar un conductor
     public function update(Request $request, $id)
     {
+        // Buscar el conductor por ID
         $conductor = Conductor::findOrFail($id);
+
+        // Validar los datos del formulario
         $request->validate([
             'nombre' => 'sometimes|required|string|max:100',
             'dni' => 'sometimes|required|string|size:8|unique:conductores,dni,' . $conductor->id,
             'direccion' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:20',
             'id_asociacion' => 'sometimes|required|exists:asociaciones,id',
-            'estado' => 'sometimes|required|boolean',
         ]);
 
-        $conductor->update($request->all());
+        // Actualizar los datos del conductor
+        $conductor->update($request->only([
+            'nombre',
+            'dni',
+            'direccion',
+            'telefono',
+            'id_asociacion',
+        ]));
 
-        return response()->json(['conductor' => $conductor]);
+        // Redirigir con mensaje de éxito
+        return redirect()->route('conductores.index')->with('success', 'Conductor actualizado exitosamente.');
     }
 
-    // Método para eliminar un conductor
+    // Método para desactivar un conductor
     public function destroy($id)
     {
+        // Buscar el conductor por ID
         $conductor = Conductor::find($id);
 
+        // Verificar si existe
         if (!$conductor) {
-            return response()->json(['message' => 'Conductor no encontrado'], 404);
+            return redirect()->route('conductores.index')->withErrors(['error' => 'Conductor no encontrado.']);
         }
 
         // Cambiar el estado a 0 en lugar de eliminar el registro
-        $conductor->estado = 0;
-        $conductor->save();
+        $conductor->update(['estado' => 0]);
 
-        return response()->json(['message' => 'Conductor desactivado']);
+        // Redirigir con mensaje de éxito
+        return redirect()->route('conductores.index')->with('success', 'Conductor desactivado correctamente.');
     }
 }

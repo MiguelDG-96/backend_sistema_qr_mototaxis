@@ -10,13 +10,17 @@ class AsociacionController extends Controller
     // Método para listar todas las asociaciones
     public function index()
     {
+        // Obtiene todas las asociaciones activas
         $asociaciones = Asociacion::all();
-        return response()->json($asociaciones);
+
+        // Retorna la vista con las asociaciones
+        return view('asociaciones', compact('asociaciones'));
     }
 
     // Método para crear una nueva asociación
     public function store(Request $request)
     {
+        // Validar los datos del formulario
         $request->validate([
             'nombre' => 'required|string|max:100|unique:asociaciones',
             'direccion' => 'nullable|string|max:255',
@@ -25,16 +29,20 @@ class AsociacionController extends Controller
         ]);
 
         // Crear la asociación si pasa la validación
-        $asociacion = Asociacion::create($request->all());
+        Asociacion::create($request->all());
 
-        return response()->json(['asociacion' => $asociacion], 201);
+        session()->flash('success', 'Asociación registrada exitosamente.');
+        // Redirigir con mensaje de éxito
+        return redirect()->route('asociaciones.index');
     }
 
     // Método para actualizar una asociación
     public function update(Request $request, $id)
     {
+        // Buscar la asociación por ID
         $asociacion = Asociacion::findOrFail($id);
 
+        // Validar los datos del formulario
         $request->validate([
             'nombre' => 'required|string|max:100|unique:asociaciones,nombre,' . $asociacion->id,
             'direccion' => 'nullable|string|max:255',
@@ -42,24 +50,29 @@ class AsociacionController extends Controller
             'estado' => 'required|boolean',
         ]);
 
+        // Actualizar los datos de la asociación
         $asociacion->update($request->all());
 
-        return response()->json(['asociacion' => $asociacion]);
+        // Redirigir con mensaje de éxito
+        return redirect()->route('asociaciones.index')->with('success', 'Asociación actualizada correctamente.');
     }
 
-    // Método para eliminar una asociación
+    // Método para eliminar (desactivar) una asociación
     public function destroy($id)
     {
+        // Buscar la asociación por ID
         $asociacion = Asociacion::find($id);
 
+        // Verificar si existe
         if (!$asociacion) {
-            return response()->json(['message' => 'Asociación no encontrada'], 404);
+            return redirect()->route('asociaciones.index')->withErrors(['error' => 'Asociación no encontrada.']);
         }
 
         // Cambiar el estado a 0 en lugar de eliminar el registro
         $asociacion->estado = 0;
         $asociacion->save();
 
-        return response()->json(['message' => 'Asociación desactivada']);
+        // Redirigir con mensaje de éxito
+        return redirect()->route('asociaciones.index')->with('success', 'Asociación desactivada correctamente.');
     }
 }

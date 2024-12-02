@@ -19,5 +19,15 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+        $this->call([
+            RolSeeder::class,             // Primero poblar roles
+            PermisoAccesoSeeder::class,   // Luego permisos de acceso
+            RolPermisoSeeder::class,
+            UserSeeder::class,            // Después usuarios
+            AsociacionSeeder::class,      // Asociaciones
+            ConductorSeeder::class,       // Conductores (relación con asociaciones)
+            VehiculoSeeder::class,        // Vehículos (relación con conductores)
+            PermisoSeeder::class,         // Permisos de circulación (relación con vehículos y conductores)
+        ]);
     }
 }

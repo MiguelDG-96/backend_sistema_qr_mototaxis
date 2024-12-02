@@ -9,14 +9,11 @@ class Rol extends Model
 {
     use HasFactory;
 
-    /**
-     * Los atributos que son asignables en masa.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = ['nombre', 'descripcion'];
 
+    // Especificar el nombre de la tabla
     protected $table = 'rols';
+
     /**
      * Relación con el modelo User.
      * Un rol puede estar asociado a varios usuarios.
@@ -24,5 +21,14 @@ class Rol extends Model
     public function users()
     {
         return $this->hasMany(User::class, 'id_rol');
+    }
+
+    /**
+     * Relación con el modelo PermisoAcceso.
+     * Un rol puede tener varios permisos.
+     */
+    public function permisos()
+    {
+        return $this->belongsToMany(PermisoAcceso::class, 'rol_permisos', 'rol_id', 'permiso_acceso_id');
     }
 }
