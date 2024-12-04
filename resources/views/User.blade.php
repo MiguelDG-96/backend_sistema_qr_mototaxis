@@ -13,7 +13,7 @@
             </button>
 
             <!-- Tabla de usuarios -->
-            <table class="table table-bordered table-striped" id="usersTable">
+            <table class="table table-bordered table-striped table-hover" id="usersTable">
                 <thead>
                     <tr>
                         <th>ID</th>

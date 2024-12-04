@@ -17,7 +17,7 @@
 <div class="container">
     <div class="card mt-4">
         <div class="card-header">
-            <h1 class="text-center">Gestión de Conductores</h1>
+            <h1 class="text-center">Gestión de Transportista</h1>
         </div>
         <div class="card-body">
             <!-- Botón para abrir el modal de registro -->
@@ -26,7 +26,7 @@
             </button>
 
             <!-- Tabla de conductores -->
-            <table class="table table-bordered table-striped" id="conductoresTable">
+            <table class="table table-bordered table-striped table-hover" id="conductoresTable">
                 <thead>
                     <tr>
                         <th>ID</th>

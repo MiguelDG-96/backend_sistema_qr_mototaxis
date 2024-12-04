@@ -13,7 +13,7 @@
             </button>
 
             <!-- Tabla de vehículos -->
-            <table class="table table-bordered table-striped" id="vehiculosTable">
+            <table class="table table-bordered table-striped table-hover" id="vehiculosTable">
                 <thead>
                     <tr>
                         <th>ID</th>

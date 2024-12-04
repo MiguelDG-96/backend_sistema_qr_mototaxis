@@ -13,7 +13,7 @@
             </button>
 
             <!-- Tabla de asociaciones -->
-            <table class="table table-bordered table-striped" id="asociacionesTable">
+            <table class="table table-bordered table-striped table-hover" id="asociacionesTable">
                 <thead>
                     <tr>
                         <th>ID</th>

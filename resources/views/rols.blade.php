@@ -57,7 +57,7 @@
                     <h3 class="card-title">Lista de Roles</h3>
                 </div>
                 <div class="card-body">
-                    <table id="rolesTable" class="table table-bordered table-striped">
+                    <table id="rolesTable" class="table table-bordered table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>Item</th>

@@ -17,6 +17,7 @@ use App\Http\Middleware\Authenticate;
 
 
 // Ruta para el login
+Route::redirect('/', '/login'); //para cargar el servidor en la vista login
 Route::get('/login', [UserController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UserController::class, 'login'])->name('login.submit');
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');

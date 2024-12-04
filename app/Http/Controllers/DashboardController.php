@@ -34,7 +34,7 @@ class DashboardController extends Controller
             ->orderBy('mes')
             ->get();
         $labels = $permisosPorMes->pluck('mes')->map(function ($mes) {
-            return date('F', mktime(0, 0, 0, $mes, 1)); // Nombres de meses
+            return \Illuminate\Support\Carbon::create()->month($mes)->locale('es')->translatedFormat('F');
         });
         $data = $permisosPorMes->pluck('total');
 
@@ -79,7 +79,7 @@ class DashboardController extends Controller
                 ->orderBy('mes')
                 ->get();
             $labels = $permisosPorPeriodo->pluck('mes')->map(function ($mes) {
-                return date('F', mktime(0, 0, 0, $mes, 1)); // Nombres de meses
+                return \Illuminate\Support\Carbon::create()->month($mes)->locale('es')->translatedFormat('F');
             });
             $data = $permisosPorPeriodo->pluck('total'); // Total por mes
         }

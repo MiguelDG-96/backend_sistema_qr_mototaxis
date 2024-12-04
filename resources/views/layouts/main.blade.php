@@ -231,7 +231,7 @@
                         <li class="nav-item">
                             <a href="{{ url('/conductores') }}" class="nav-link {{ Request::is('conductores') ? 'active' : '' }}">
                                 <i class=" nav-icon fas fa-id-card"></i>
-                                <p>Conductores</p>
+                                <p>Transportista</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -281,6 +281,17 @@
     <script src="{{ asset('adminlte/dist/js/adminlte.min.js') }}"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        // Aplica automáticamente el contenedor table-responsive a todas las tablas
+        $(document).ready(function() {
+            $('table').each(function() {
+                if (!$(this).parent().hasClass('table-responsive')) {
+                    $(this).wrap('<div class="table-responsive"></div>');
+                }
+            });
+        });
+    </script>
+
 
 
 </body>

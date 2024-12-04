@@ -10,10 +10,10 @@
     </button>
 
     <!-- Tabla de permisos -->
-    <table class="table table-bordered table-striped" id="permisosTable">
+    <table class="table table-bordered table-striped table-hover" id="permisosTable">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Item</th>
                 <th>Vehículo</th>
                 <th>Conductor</th>
                 <th>Fecha Emisión</th>

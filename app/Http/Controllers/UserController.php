@@ -26,24 +26,41 @@ class UserController extends Controller
         ]);
 
         // Intentar autenticar al usuario
-        if (Auth::attempt($request->only('email', 'password'))) {
-            $request->session()->regenerate(); // Regenerar la sesión por seguridad
+        $user = User::where('email', $request->email)->first();
 
-            // Redirigir al dashboard con mensaje de éxito
+        if ($user && Hash::check($request->password, $user->password)) {
+            // Verificar si el usuario ya tiene una sesión activa
+            if ($user->remember_token) {
+                // Forzar cierre de sesión previa
+                Auth::logoutOtherDevices($request->password);
+
+                return back()->with('alert', [
+                    'type' => 'warning',
+                    'title' => 'Sesión Activa',
+                    'message' => 'Se cerró otra sesión iniciada previamente.',
+                    'confirmButtonText' => 'Aceptar',
+                ]);
+            }
+
+            // Autenticar y regenerar la sesión actual
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            // Redirigir al dashboard
             return redirect()->route('dashboard')->with('alert', [
                 'type' => 'success',
                 'title' => '¡Éxito!',
                 'message' => 'Inicio de sesión exitoso',
-                'confirmButtonText' => 'Aceptar'
+                'confirmButtonText' => 'Aceptar',
             ]);
         }
 
-        // Si la autenticación falla, redirigir con un mensaje de error
+        // Si la autenticación falla
         return back()->with('alert', [
             'type' => 'error',
             'title' => 'Error',
             'message' => 'Credenciales incorrectas o usuario inactivo',
-            'confirmButtonText' => 'Reintentar'
+            'confirmButtonText' => 'Reintentar',
         ]);
     }
 

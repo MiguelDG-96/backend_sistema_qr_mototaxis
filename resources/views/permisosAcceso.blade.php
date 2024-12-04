@@ -81,7 +81,7 @@
                     <h3 class="card-title">Lista de Permisos</h3>
                 </div>
                 <div class="card-body">
-                    <table id="permisosTable" class="table table-bordered table-striped">
+                    <table id="permisosTable" class="table table-bordered table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>

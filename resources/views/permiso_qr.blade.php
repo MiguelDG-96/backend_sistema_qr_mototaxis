@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="container mt-5">
+<div class="container mt-0">
     <h1 class="text-center mb-4">Detalles del Permiso</h1>
     <div class="card shadow-lg">
         <div class="card-header bg-primary text-white">
