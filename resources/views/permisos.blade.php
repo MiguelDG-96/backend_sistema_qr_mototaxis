@@ -1,7 +1,68 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="container mt-4">
+<style>
+    .form-group {
+        position: relative;
+        /* Asegura que los elementos hijos con posición absoluta se alineen correctamente */
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        /* Ubica el menú justo debajo del input */
+        left: 0;
+        width: 100%;
+        /* Asegura que el ancho del menú sea igual al del input */
+        max-height: 200px;
+        /* Altura máxima del menú */
+        overflow-y: auto;
+        /* Permite el scroll si hay demasiados elementos */
+        z-index: 1050;
+        /* Coloca el menú encima de otros elementos */
+        display: none;
+        /* Oculta el menú por defecto */
+        background-color: #fff;
+        /* Fondo blanco para el menú */
+        border: 1px solid #ddd;
+        /* Borde gris claro */
+        border-radius: 4px;
+        /* Bordes redondeados */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        /* Sombra para mejor visibilidad */
+    }
+
+    .dropdown-item {
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    /* Cambia el color de fondo al pasar el cursor */
+    .dropdown-item:hover {
+        background-color: #e9ecef;
+        /* Un gris claro */
+    }
+
+    /* Opcional: Cambia el color de texto también, si lo deseas */
+    .dropdown-item:hover {
+        color: #495057;
+        /* Gris oscuro */
+    }
+
+    .btn {
+        white-space: nowrap;
+        /* Evita que el texto se divida en varias líneas */
+        font-size: 0.875rem;
+        /* Ajusta el tamaño del texto */
+    }
+
+    .d-flex .btn {
+        flex: 1;
+        /* Asegura que los botones ocupen el mismo espacio */
+    }
+</style>
+
+<div class="container mt-0">
     <h1 class="text-center">Gestión de Permisos</h1>
 
     <!-- Botón para abrir el modal de registro -->
@@ -49,24 +110,26 @@
                     </a>
                 </td>
                 <td>
-                    <!-- Botón Editar -->
-                    <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editPermisoModal"
-                        data-id="{{ $permiso->id }}"
-                        data-vehiculo="{{ $permiso->id_vehiculo }}"
-                        data-conductor="{{ $permiso->id_conductor }}"
-                        data-fecha_emision="{{ $permiso->fecha_emision }}"
-                        data-fecha_expiracion="{{ $permiso->fecha_expiracion }}"
-                        data-estado="{{ $permiso->estado }}">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <!-- Botón Eliminar -->
-                    <form action="{{ route('permisos.destroy', $permiso->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm">
-                            <i class="fas fa-trash"></i> Eliminar
+                    <div class="d-flex justify-content-between">
+                        <!-- Botón Editar -->
+                        <button class="btn btn-warning btn-sm flex-fill mx-1" data-toggle="modal" data-target="#editPermisoModal"
+                            data-id="{{ $permiso->id }}"
+                            data-vehiculo="{{ $permiso->id_vehiculo }}"
+                            data-conductor="{{ $permiso->id_conductor }}"
+                            data-fecha_emision="{{ $permiso->fecha_emision }}"
+                            data-fecha_expiracion="{{ $permiso->fecha_expiracion }}"
+                            data-estado="{{ $permiso->estado }}">
+                            <i class="fas fa-edit"></i> Editar
                         </button>
-                    </form>
+                        <!-- Botón Eliminar -->
+                        <form action="{{ route('permisos.destroy', $permiso->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm w-100">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             @endforeach
@@ -89,23 +152,18 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="vehiculo">Vehículo</label>
-                        <select name="id_vehiculo" id="vehiculo" class="form-control" required>
-                            <option value="">-- Seleccionar Vehículo --</option>
-                            @foreach ($vehiculos as $vehiculo)
-                            <option value="{{ $vehiculo->id }}">{{ $vehiculo->placa }}</option>
-                            @endforeach
-                        </select>
+                        <label for="vehiculo">Número de placa del Vehículo</label>
+                        <input type="text" id="vehiculo_search" class="form-control" placeholder="Ingrese placa del vehículo">
+                        <input type="hidden" name="id_vehiculo" id="vehiculo_id">
+                        <ul class="dropdown-menu" id="vehiculo_results"></ul>
                     </div>
                     <div class="form-group">
-                        <label for="conductor">Conductor</label>
-                        <select name="id_conductor" id="conductor" class="form-control" required>
-                            <option value="">-- Seleccionar Conductor --</option>
-                            @foreach ($conductores as $conductor)
-                            <option value="{{ $conductor->id }}">{{ $conductor->nombre }}</option>
-                            @endforeach
-                        </select>
+                        <label for="conductor">Conductor (Buscar por nombre)</label>
+                        <input type="text" id="conductor_search" class="form-control" placeholder="Ingrese nombre del conductor">
+                        <input type="hidden" name="id_conductor" id="conductor_id">
+                        <ul class="dropdown-menu" id="conductor_results"></ul>
                     </div>
+
                     <div class="form-group">
                         <label for="fecha_emision">Fecha de Emisión</label>
                         <input type="date" name="fecha_emision" id="fecha_emision" class="form-control" required>
@@ -195,6 +253,55 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
+        function setupAutocomplete(inputId, resultListId, hiddenFieldId, url) {
+            $(inputId).on('input', function() {
+                const query = $(this).val();
+                if (query.length > 1) {
+                    $.ajax({
+                        url: url,
+                        method: 'GET',
+                        data: {
+                            search: query
+                        },
+                        success: function(data) {
+                            const list = $(resultListId);
+                            list.empty();
+                            if (data.length > 0) {
+                                data.forEach(item => {
+                                    list.append(`<li class="dropdown-item" data-id="${item.id}" data-value="${item.text}">${item.text}</li>`);
+                                });
+                                list.show();
+                            } else {
+                                list.hide();
+                            }
+                        }
+                    });
+                } else {
+                    $(resultListId).hide();
+                }
+            });
+
+            $(document).on('click', resultListId + ' li', function() {
+                const id = $(this).data('id');
+                const value = $(this).data('value');
+                $(inputId).val(value);
+                $(hiddenFieldId).val(id);
+                $(resultListId).hide();
+            });
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest(inputId).length && !$(e.target).closest(resultListId).length) {
+                    $(resultListId).hide();
+                }
+            });
+        }
+        setupAutocomplete('#vehiculo_search', '#vehiculo_results', '#vehiculo_id', '/permisos/search/vehiculos');
+        setupAutocomplete('#conductor_search', '#conductor_results', '#conductor_id', '/permisos/search/conductores');
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
         $('#permisosTable').DataTable({
             responsive: true,
             language: {
@@ -222,4 +329,5 @@
         });
     });
 </script>
+
 @endsection

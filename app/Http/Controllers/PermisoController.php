@@ -59,9 +59,23 @@ class PermisoController extends Controller
         return redirect()->route('permisos.index')->with('success', 'Permiso registrado exitosamente.');
     }
 
-    /**
-     * Método para mostrar los detalles del permiso al escanear el QR.
-     */
+    //funcion para buscar vehiculo y conductor
+    public function searchVehiculos(Request $request)
+    {
+        $query = $request->input('search');
+        $vehiculos = Vehiculo::where('placa', 'like', "%$query%")->get(['id', 'placa']);
+        return response()->json($vehiculos->map(fn($v) => ['id' => $v->id, 'text' => $v->placa]));
+    }
+
+    public function searchConductores(Request $request)
+    {
+        $query = $request->input('search');
+        $conductores = Conductor::where('nombre', 'like', "%$query%")->get(['id', 'nombre']);
+        return response()->json($conductores->map(fn($c) => ['id' => $c->id, 'text' => $c->nombre]));
+    }
+
+    //Método para mostrar los detalles del permiso al escanear el QR.
+
     public function download_qr($id)
     {
         $qr = Permiso::find($id);

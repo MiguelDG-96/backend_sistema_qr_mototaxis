@@ -95,9 +95,11 @@ Route::middleware([Authenticate::class])->group(function () {
     Route::get('/permisos', [PermisoController::class, 'index'])->name('permisos.index');
     Route::post('/permisos', [PermisoController::class, 'store'])->name('permisos.store');
     Route::get('/permisos/{id}', [PermisoController::class, 'showDetails'])->name('permisos.show');
+    //busqueda por filtros
+    Route::get('/permisos/search/vehiculos', [PermisoController::class, 'searchVehiculos'])->name('permisos.search.vehiculos');
+    Route::get('/permisos/search/conductores', [PermisoController::class, 'searchConductores'])->name('permisos.search.conductores');
     Route::put('/permisos/{id}', [PermisoController::class, 'update'])->name('permisos.update');
     Route::delete('/permisos/{id}', [PermisoController::class, 'destroy'])->name('permisos.destroy');
-
     Route::get('/permisos/{id}', [PermisoController::class, 'download_qr'])->name('permisos.download_qr');
     Route::get('/permisos/{id}/qr', [PermisoController::class, 'showQr'])->name('permisos.showQr');
 

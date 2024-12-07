@@ -1,6 +1,19 @@
 @extends('layouts.main')
 
 @section('content')
+<style>
+    .btn {
+        white-space: nowrap;
+        /* Evita que el texto se divida en varias líneas */
+        font-size: 0.875rem;
+        /* Ajusta el tamaño del texto */
+    }
+
+    .d-flex .btn {
+        flex: 1;
+        /* Asegura que los botones ocupen el mismo espacio */
+    }
+</style>
 <div class="container">
     <div class="card mt-4">
         <div class="card-header">
@@ -37,7 +50,7 @@
                         <td>
                             <div class="d-flex justify-content-between">
                                 <!-- Botón Editar -->
-                                <button class="btn btn-warning btn-sm pl-1" data-toggle="modal" data-target="#editVehiculoModal"
+                                <button class="btn btn-warning btn-sm flex-fill mx-1" data-toggle="modal" data-target="#editVehiculoModal"
                                     data-id="{{ $vehiculo->id }}"
                                     data-placa="{{ $vehiculo->placa }}"
                                     data-marca="{{ $vehiculo->marca }}"
@@ -50,7 +63,7 @@
                                 <form action="{{ route('vehiculos.destroy', $vehiculo->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm pr-1">
+                                    <button type="submit" class="btn btn-danger btn-sm w-100">
                                         <i class="fas fa-trash"></i> Desactivar
                                     </button>
                                 </form>
