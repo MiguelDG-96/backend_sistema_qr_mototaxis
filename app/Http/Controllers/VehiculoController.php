@@ -19,56 +19,96 @@ class VehiculoController extends Controller
     // Método para registrar un nuevo vehículo
     public function store(Request $request)
     {
-        $request->validate([
-            'placa' => 'required|string|max:10|unique:vehiculos,placa',
-            'marca' => 'required|string|max:50',
-            'modelo' => 'required|string|max:50',
-            'anio' => 'required|integer',
-            'id_conductor' => 'required|exists:conductores,id',
-        ]);
+        try {
+            $request->validate([
+                'placa' => 'required|string|max:10|unique:vehiculos,placa',
+                'marca' => 'required|string|max:50',
+                'modelo' => 'required|string|max:50',
+                'anio' => 'required|integer',
+                'id_conductor' => 'required|exists:conductores,id',
+            ]);
 
-        Vehiculo::create($request->all());
+            Vehiculo::create($request->all());
 
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo registrado exitosamente.');
-    }
-
-    // Método para mostrar un vehículo (opcional para edición)
-    public function show($id)
-    {
-        $vehiculo = Vehiculo::with('conductor')->findOrFail($id);
-        return view('vehiculos.show', compact('vehiculo'));
+            return redirect()->route('vehiculos.index')->with('alert', [
+                'type' => 'success',
+                'title' => 'Vehículo Registrado',
+                'message' => 'El vehículo ha sido registrado exitosamente.',
+                'confirmButtonText' => 'Aceptar',
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('vehiculos.index')->with('alert', [
+                'type' => 'error',
+                'title' => 'Error al Registrar',
+                'message' => 'Ocurrió un problema al intentar registrar el vehículo.',
+                'confirmButtonText' => 'Reintentar',
+            ]);
+        }
     }
 
     // Método para actualizar un vehículo
     public function update(Request $request, $id)
     {
-        $vehiculo = Vehiculo::findOrFail($id);
+        try {
+            $vehiculo = Vehiculo::findOrFail($id);
 
-        $request->validate([
-            'placa' => 'sometimes|required|string|max:10|unique:vehiculos,placa,' . $vehiculo->id,
-            'marca' => 'sometimes|required|string|max:50',
-            'modelo' => 'sometimes|required|string|max:50',
-            'anio' => 'sometimes|required|integer',
-            'id_conductor' => 'sometimes|required|exists:conductores,id',
-        ]);
+            $request->validate([
+                'placa' => 'sometimes|required|string|max:10|unique:vehiculos,placa,' . $vehiculo->id,
+                'marca' => 'sometimes|required|string|max:50',
+                'modelo' => 'sometimes|required|string|max:50',
+                'anio' => 'sometimes|required|integer',
+                'id_conductor' => 'sometimes|required|exists:conductores,id',
+            ]);
 
-        $vehiculo->update($request->all());
+            $vehiculo->update($request->all());
 
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo actualizado exitosamente.');
+            return redirect()->route('vehiculos.index')->with('alert', [
+                'type' => 'success',
+                'title' => 'Vehículo Actualizado',
+                'message' => 'Los datos del vehículo han sido actualizados exitosamente.',
+                'confirmButtonText' => 'Aceptar',
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('vehiculos.index')->with('alert', [
+                'type' => 'error',
+                'title' => 'Error al Actualizar',
+                'message' => 'Ocurrió un problema al intentar actualizar el vehículo.',
+                'confirmButtonText' => 'Reintentar',
+            ]);
+        }
     }
 
     // Método para desactivar un vehículo
     public function destroy($id)
     {
-        $vehiculo = Vehiculo::find($id);
+        try {
+            $vehiculo = Vehiculo::find($id);
 
-        if (!$vehiculo) {
-            return redirect()->route('vehiculos.index')->withErrors(['message' => 'Vehículo no encontrado.']);
+            if (!$vehiculo) {
+                return redirect()->route('vehiculos.index')->with('alert', [
+                    'type' => 'error',
+                    'title' => 'Vehículo no encontrado',
+                    'message' => 'El vehículo que intentas desactivar no existe.',
+                    'confirmButtonText' => 'Reintentar',
+                ]);
+            }
+
+            $vehiculo->estado = 0;
+            $vehiculo->save();
+
+            return redirect()->route('vehiculos.index')->with('alert', [
+                'type' => 'success',
+                'title' => 'Vehículo Desactivado',
+                'message' => 'El vehículo ha sido desactivado exitosamente.',
+                'confirmButtonText' => 'Aceptar',
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('vehiculos.index')->with('alert', [
+                'type' => 'error',
+                'title' => 'Error al Desactivar',
+                'message' => 'Ocurrió un problema al intentar desactivar el vehículo.',
+                'confirmButtonText' => 'Reintentar',
+            ]);
         }
-
-        $vehiculo->estado = 0;
-        $vehiculo->save();
-
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo desactivado exitosamente.');
     }
 }

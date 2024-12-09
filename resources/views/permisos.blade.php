@@ -329,5 +329,15 @@
         });
     });
 </script>
+@if(session('alert'))
+<script>
+    Swal.fire({
+        icon: '{{ session("alert.type") }}', // Tipo de alerta (success, error)
+        title: '{{ session("alert.title") }}', // Título de la alerta
+        text: '{{ session("alert.message") }}', // Mensaje de la alerta
+        confirmButtonText: '{{ session("alert.confirmButtonText") ?? "Aceptar" }}' // Botón de confirmación
+    });
+</script>
+@endif
 
 @endsection

@@ -1,6 +1,9 @@
 @extends('layouts.main')
 
 @section('content')
+<style>
+
+</style>
 <div class="container">
     <div class="card mt-4">
         <div class="card-header">
@@ -32,21 +35,25 @@
                         <td>{{ $user->rol->nombre }}</td>
                         <td>
                             <!-- Botón Editar -->
-                            <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editUserModal"
-                                data-id="{{ $user->id }}"
-                                data-name="{{ $user->name }}"
-                                data-email="{{ $user->email }}"
-                                data-rol="{{ $user->id_rol }}">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <!-- Botón Desactivar -->
-                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i> Desactivar
+                            <div class="d-flex justify-content-evenly ">
+                                <button class="btn btn-warning btn-sm mx-3" data-toggle="modal" data-target="#editUserModal"
+                                    data-id="{{ $user->id }}"
+                                    data-name="{{ $user->name }}"
+                                    data-email="{{ $user->email }}"
+                                    data-rol="{{ $user->id_rol }}">
+                                    <i class="fas fa-edit"></i> Editar
                                 </button>
-                            </form>
+
+                                <!-- Botón Desactivar -->
+                                <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm ">
+                                        <i class="fas fa-trash"></i> Desactivar
+                                    </button>
+                                </form>
+                            </div>
+
                         </td>
                     </tr>
                     @endforeach
@@ -146,7 +153,8 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.3/sweetalert2.all.min.js"></script>
+
 <script>
     $(document).ready(function() {
         $('#usersTable').DataTable({
@@ -172,4 +180,14 @@
         });
     });
 </script>
+@if(session('alert'))
+<script>
+    Swal.fire({
+        icon: "{{ session('alert.type') }}",
+        title: "{{ session('alert.title') }}",
+        text: "{{ session('alert.message') }}",
+        confirmButtonText: "{{ session('alert.confirmButtonText') }}"
+    });
+</script>
+@endif
 @endsection

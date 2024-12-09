@@ -37,29 +37,40 @@ class PermisoController extends Controller
             'estado' => 'required|in:Vigente,Expirado,Suspendido',
         ]);
 
+        // Verificar si ya existe un permiso activo con el mismo vehículo y conductor
+        $existingPermiso = Permiso::where('id_vehiculo', $request->id_vehiculo)
+            ->where('id_conductor', $request->id_conductor)
+            ->where('estado', 'Vigente') // Solo permisos activos
+            ->first();
+
+        if ($existingPermiso) {
+            return redirect()->back()->with('alert', [
+                'type' => 'error',
+                'title' => '¡Error!',
+                'message' => 'Ya existe un permiso con esta placa y conductor.',
+                'confirmButtonText' => 'Aceptar'
+            ]);
+        }
+
         $link = "http://127.0.0.1:8000/qrcodes/";
         // Crear el permiso
         $permiso = Permiso::create($request->all());
-        // aGREGAR EL TEXTO DEL QR
+        // Añadir el texto del QR
         $permiso = Permiso::where('id', $permiso->id)->first();
         $permiso->qr = $link . $permiso->id;
         $permiso->save();
 
-        // Generar la URL única para el QR
-        //$qrUrl = route('permisos.showQr', ['id' => $permiso->id]);
-
-        // Generar el código QR en formato PNG y guardar la imagen
-        //$qrPath = public_path("qrcodes/permiso_{$permiso->id}.png");
-        //QrCode::format('png')->size(300)->generate($qrUrl, $qrPath);
         QrCode::size(80)->generate($link . $permiso->id, "qrcodes/" . $permiso->id . ".svg");
-        // Almacenar la URL pública del QR en la base de datos
-        //$permiso->codigo_qr = asset("qrcodes/permiso_{$permiso->id}.png");
-        //$permiso->save();
 
-        return redirect()->route('permisos.index')->with('success', 'Permiso registrado exitosamente.');
+        return redirect()->route('permisos.index')->with('alert', [
+            'type' => 'success',
+            'title' => 'Permiso Registrado',
+            'message' => 'El permiso ha sido registrado exitosamente.',
+            'confirmButtonText' => 'Aceptar',
+        ]);
     }
 
-    //funcion para buscar vehiculo y conductor
+    // Método para buscar vehículos
     public function searchVehiculos(Request $request)
     {
         $query = $request->input('search');
@@ -67,6 +78,7 @@ class PermisoController extends Controller
         return response()->json($vehiculos->map(fn($v) => ['id' => $v->id, 'text' => $v->placa]));
     }
 
+    // Método para buscar conductores
     public function searchConductores(Request $request)
     {
         $query = $request->input('search');
@@ -74,14 +86,16 @@ class PermisoController extends Controller
         return response()->json($conductores->map(fn($c) => ['id' => $c->id, 'text' => $c->nombre]));
     }
 
-    //Método para mostrar los detalles del permiso al escanear el QR.
-
+    /**
+     * Método para mostrar los detalles del permiso al escanear el QR.
+     */
     public function download_qr($id)
     {
         $qr = Permiso::find($id);
         $path = public_path() . '/qrcodes/' . $qr->id . '.svg';
         return response()->download($path);
     }
+
     public function showQr($id)
     {
         $permiso = Permiso::with(['vehiculo', 'conductor', 'conductor.asociacion'])->find($id);
@@ -119,7 +133,12 @@ class PermisoController extends Controller
         $permiso->codigo_qr = asset("qrcodes/permiso_{$permiso->id}.png");
         $permiso->save();
 
-        return redirect()->route('permisos.index')->with('success', 'Permiso actualizado exitosamente.');
+        return redirect()->route('permisos.index')->with('alert', [
+            'type' => 'success',
+            'title' => 'Permiso Actualizado',
+            'message' => 'El permiso ha sido actualizado correctamente.',
+            'confirmButtonText' => 'Aceptar',
+        ]);
     }
 
     /**
@@ -130,12 +149,22 @@ class PermisoController extends Controller
         $permiso = Permiso::find($id);
 
         if (!$permiso) {
-            return redirect()->route('permisos.index')->withErrors(['message' => 'Permiso no encontrado.']);
+            return redirect()->route('permisos.index')->with('alert', [
+                'type' => 'error',
+                'title' => 'Permiso no encontrado',
+                'message' => 'No se encontró el permiso que intentas eliminar.',
+                'confirmButtonText' => 'Reintentar',
+            ]);
         }
 
         // Cambiar el estado a inactivo (opcional) o eliminar directamente
         $permiso->delete();
 
-        return redirect()->route('permisos.index')->with('success', 'Permiso eliminado exitosamente.');
+        return redirect()->route('permisos.index')->with('alert', [
+            'type' => 'success',
+            'title' => 'Permiso Eliminado',
+            'message' => 'El permiso ha sido eliminado correctamente.',
+            'confirmButtonText' => 'Aceptar',
+        ]);
     }
 }

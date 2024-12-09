@@ -21,7 +21,7 @@
 <style>
     /* Personalizar el fondo del sidebar */
     .sidebar-custom {
-        background-color: #00c0ef !important;
+        background-color: #081A3F !important;
         /* Fondo celeste */
         color: #fff;
         /* Texto blanco */
@@ -37,16 +37,25 @@
     }
 
     .sidebar .brand-link:hover {
-        background-color: #007ea8;
+        background-color: black;
         /* Oscurecer al hover */
     }
 
     .titulo-sidebar {
-        color: #003f53;
+        color: white;
         text-transform: uppercase;
         font-size: larger;
         font-family: 'Times New Roman', Times, serif;
         text-decoration-color: #fff;
+    }
+
+    .sidebar-divider {
+        border: 0;
+        height: 1px;
+        background: white;
+        /* Gradiente sutil */
+        margin: 10px 0;
+        /* Espaciado superior e inferior */
     }
 
     /* Estilizar el panel de usuario */
@@ -131,7 +140,7 @@
             <!-- Texto animado "Bienvenido, juntos trabajamos por el cambio de nuestro distrito" -->
             <div class="animated-text ml-auto">
                 @if(Auth::check()) <!-- Verifica si hay un usuario autenticado -->
-                <h3>Bienvenido, {{ Auth::user()->name }}</h3>
+                <h3>Bienvenido, {{ Auth::user()->name }}!</h3>
                 @else
                 <h1>Bienvenido, invitado. Inicia sesión para obtener acceso completo.</h1>
                 @endif
@@ -158,24 +167,24 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-custom elevation-4">
             <!-- Brand Logo -->
-            <a href="#" class="brand-link">
-                <img src="{{ asset('adminlte/dist/img/municipalidad.png') }}" alt="municipalidad Logo"
-                    class="brand-image img-circle elevation-3">
+            <a href="#" class="brand-link mt-1 pb-3 mb-2 d-flex"">
+                <img src=" {{ asset('adminlte/dist/img/municipalidad.png') }}" alt="municipalidad Logo"
+                class="brand-image img-circle elevation-3">
                 <span class="titulo-sidebar">MDM-2024</span>
             </a>
-
+            <hr class="sidebar-divider">
             <!-- Sidebar -->
             <div class="sidebar">
                 <!-- Sidebar user panel -->
-                <div class="user-panel mt-0 pb-3 mb-3 d-flex">
+                <!-- <div class="user-panel mt-0 pb-3 mb-3 d-flex">
                     <div class="image">
                         <img src="{{ asset('adminlte/dist/img/muni.ico') }}" class="img-circle elevation-2"
                             alt="User Image">
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block">Usuario Administrador</a>
+                        <a href="#" class="d-block">{{ Auth::user()->name }}</a>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">

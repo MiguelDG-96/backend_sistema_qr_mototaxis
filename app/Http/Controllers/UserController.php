@@ -28,29 +28,22 @@ class UserController extends Controller
         // Intentar autenticar al usuario
         $user = User::where('email', $request->email)->first();
 
+        // Verificar credenciales
         if ($user && Hash::check($request->password, $user->password)) {
-            // Verificar si el usuario ya tiene una sesión activa
+            // Cerrar sesión previa si hay un remember_token activo
             if ($user->remember_token) {
-                // Forzar cierre de sesión previa
                 Auth::logoutOtherDevices($request->password);
-
-                return back()->with('alert', [
-                    'type' => 'warning',
-                    'title' => 'Sesión Activa',
-                    'message' => 'Se cerró otra sesión iniciada previamente.',
-                    'confirmButtonText' => 'Aceptar',
-                ]);
             }
 
-            // Autenticar y regenerar la sesión actual
+            // Autenticar al usuario y regenerar la sesión
             Auth::login($user);
             $request->session()->regenerate();
 
-            // Redirigir al dashboard
+            // Redirigir al dashboard con alerta de éxito
             return redirect()->route('dashboard')->with('alert', [
                 'type' => 'success',
                 'title' => '¡Éxito!',
-                'message' => 'Inicio de sesión exitoso',
+                'message' => 'Inicio de sesión exitoso. ¡Bienvenido!',
                 'confirmButtonText' => 'Aceptar',
             ]);
         }
@@ -58,8 +51,8 @@ class UserController extends Controller
         // Si la autenticación falla
         return back()->with('alert', [
             'type' => 'error',
-            'title' => 'Error',
-            'message' => 'Credenciales incorrectas o usuario inactivo',
+            'title' => 'Error de inicio de sesión',
+            'message' => 'Credenciales incorrectas o usuario no encontrado.',
             'confirmButtonText' => 'Reintentar',
         ]);
     }
@@ -75,7 +68,12 @@ class UserController extends Controller
         $request->session()->regenerateToken();
 
         // Redirigir con mensaje de éxito de cierre de sesión
-        return redirect()->route('login')->with('success', 'Sesión cerrada correctamente');
+        return redirect()->route('login')->with('alert', [
+            'type' => 'success',
+            'title' => 'Sesión Cerrada',
+            'message' => 'Has cerrado sesión correctamente.',
+            'confirmButtonText' => 'Aceptar',
+        ]);
     }
 
 
@@ -99,13 +97,6 @@ class UserController extends Controller
             'id_rol' => 'required|exists:rols,id',
             //'password' => 'required|string|min:8'
         ]);
-        // Validar los datos del formulario
-        /*$request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'id_rol' => 'required|exists:rols,id', // Asegúrate de tener una tabla de roles
-        ]);*/
 
         // Crear el usuario
         $user = new User();
@@ -116,7 +107,12 @@ class UserController extends Controller
         $user->estado = 1;
         $user->save();
 
-        return redirect()->route('users.index')->with('success', 'Usuario registrado exitosamente.');
+        return redirect()->route('users.index')->with('alert', [
+            'type' => 'success',
+            'title' => 'Usuario Registrado',
+            'message' => 'El usuario fue registrado exitosamente.',
+            'confirmButtonText' => 'Aceptar',
+        ]);
     }
 
     // Actualiza un usuario existente
@@ -145,7 +141,12 @@ class UserController extends Controller
             $user->save();
         }
 
-        return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente.');
+        return redirect()->route('users.index')->with('alert', [
+            'type' => 'success',
+            'title' => 'Usuario Actualizado',
+            'message' => 'Los datos del usuario han sido actualizados.',
+            'confirmButtonText' => 'Aceptar',
+        ]);
     }
 
     // Desactiva (elimina lógicamente) un usuario
@@ -156,8 +157,22 @@ class UserController extends Controller
 
         // Cambiar el estado del usuario a inactivo (0)
         $user->estado = 0;
-        $user->save();
 
-        return redirect()->route('users.index')->with('success', 'Usuario desactivado exitosamente.');
+        // Guardar el cambio
+        if ($user->save()) {
+            return redirect()->route('users.index')->with('alert', [
+                'type' => 'success',
+                'title' => 'Usuario Desactivado',
+                'message' => 'El usuario fue desactivado correctamente.',
+                'confirmButtonText' => 'Aceptar',
+            ]);
+        } else {
+            return back()->with('alert', [
+                'type' => 'error',
+                'title' => 'Error al Desactivar',
+                'message' => 'No se pudo desactivar el usuario. Intenta de nuevo.',
+                'confirmButtonText' => 'Reintentar',
+            ]);
+        }
     }
 }
